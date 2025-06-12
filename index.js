@@ -1,22 +1,35 @@
 let express = require('express');
 let mongoose = require('mongoose');
-let cors =require('cors');
-const enquiryRouter = require('./App/routes/web/enquiryRoutes')
+let cors = require('cors');
 require('dotenv').config();
 
-
-//connect to MongoDB
+const enquiryRouter = require('./app/routes/web/enquiryRoutes');
 
 let app = express();
-app.use(cors())
+
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use('/api/website/enquiry',enquiryRouter)
 
+// Routes
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
 
+app.use('/api/website/enquiry', enquiryRouter);
 
-mongoose.connect(process.env.DBURL).then(()=>{
-  console.log("Connected to MongoDB");
-  app.listen(process.env.PORT || 3000,()=>{
-    console.log("Server is running on port "+process.env.PORT);
-  })
-}).catch((err) => { console.log(err)});
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+// Connect to MongoDB
+mongoose.connect(process.env.DBURL).then(() => {
+  console.log('Connected to MongoDB');
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log('Server is running on port ' + port);
+  });
+}).catch((err) => {
+  console.log('MongoDB connection error:', err);
+});
