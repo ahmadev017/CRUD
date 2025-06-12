@@ -28,3 +28,8 @@ mongoose.connect(process.env.DBURL)
 // ✅ Export the app for Vercel
 module.exports = app;
 
+const PORT = process.env.PORT || 8000;
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
