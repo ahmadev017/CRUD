@@ -7,7 +7,6 @@ const enquiryRouter = require('./app/routes/web/enquiryRoutes');
 
 let app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -15,21 +14,17 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
-
 app.use('/api/website/enquiry', enquiryRouter);
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
-
-// Connect to MongoDB
-mongoose.connect(process.env.DBURL).then(() => {
-  console.log('Connected to MongoDB');
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log('Server is running on port ' + port);
+// MongoDB Connection
+mongoose.connect(process.env.DBURL)
+  .then(() => {
+    console.log('Connected to MongoDB');
+  })
+  .catch((err) => {
+    console.log('MongoDB connection error:', err);
   });
-}).catch((err) => {
-  console.log('MongoDB connection error:', err);
-});
+
+// ✅ Export the app for Vercel
+module.exports = app;
+
