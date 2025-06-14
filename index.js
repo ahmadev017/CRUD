@@ -9,10 +9,16 @@ dotenv.config();
 const app = express();
 
 // ✅ Enable CORS
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://crud-frontend-8br5.vercel.app' // ✅ your frontend deployed domain
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: allowedOrigins,
   credentials: true
 }));
+
 
 // ✅ Middleware
 app.use(express.json());
@@ -41,11 +47,13 @@ mongoose.connect(process.env.MONGODB_URI, {
 
   app.use('/api/website/enquiry', enquiryRoutes);
 
-  app.listen(8000, () => {
-    console.log("🚀 Server running on port 8000");
-  });
+  // No app.listen() in Vercel!
+  console.log("✅ Connected to MongoDB");
 })
 .catch((err) => {
   console.error("❌ MongoDB connection error:", err);
 });
+
+export default app;
+
 
