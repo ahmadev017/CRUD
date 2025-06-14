@@ -1,35 +1,51 @@
-let express = require('express');
-let mongoose = require('mongoose');
-let cors = require('cors');
-require('dotenv').config();
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import enquiryRoutes from './app/routes/web/enquiryRoutes.js';
+import dotenv from 'dotenv';
 
-const enquiryRouter = require('./app/routes/web/enquiryRoutes');
+dotenv.config();
 
-let app = express();
+const app = express();
 
-app.use(cors());
+// ✅ Enable CORS
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
+// ✅ Middleware
 app.use(express.json());
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('API is running...');
+// ✅ CSP header (optional)
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; script-src 'self';"
+  );
+  next();
 });
-app.use('/api/website/enquiry', enquiryRouter);
 
-// MongoDB Connection
-mongoose.connect(process.env.DBURL)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((err) => {
-    console.log('MongoDB connection error:', err);
+// ✅ Test route
+app.get("/", (req, res) => {
+  res.send("Welcome to the backend API!");
+});
+
+// ✅ Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => {
+  console.log("✅ Connected to MongoDB");
+
+  app.use('/api/website/enquiry', enquiryRoutes);
+
+  app.listen(8000, () => {
+    console.log("🚀 Server running on port 8000");
   });
-
-// ✅ Export the app for Vercel
-module.exports = app;
-
-const PORT = process.env.PORT || 8000;
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+})
+.catch((err) => {
+  console.error("❌ MongoDB connection error:", err);
 });
+
