@@ -16,13 +16,17 @@ let enquiryInsert = (req, res) => {
 
 let enquiryList = async (req, res) => {
   try {
+    console.log("🔍 Fetching all enquiries..."); // Add this line
     let enquiry = await enquiryModel.find();
+    console.log("✅ Enquiries fetched:", enquiry.length);
     res.send({ status: 1, enquiryList: enquiry });
-  } catch (err) {
-    console.error("Error in enquiryList:", err);
-    res.status(500).send({ status: 0, message: "Internal Server Error", error: err.message });
+  } catch (error) {
+    console.error("❌ Error in enquiryList:", error); // Already present
+    res.status(500).send({ status: 0, message: "Internal Server Error", error });
   }
 };
+
+
 
 let enquiryDelete = async (req, res) => {
   try {
