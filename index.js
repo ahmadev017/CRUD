@@ -1,59 +1,46 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
 import enquiryRoutes from './app/routes/web/enquiryRoutes.js';
 import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
 const app = express();
 
-// ✅ Enable CORS
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://crud-frontend-8br5.vercel.app' // ✅ your frontend deployed domain
-];
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'https://crud-frontend-8br5.vercel.app',
+    'https://crud-frontend-9nam.vercel.app'  // ✅ Add this!
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
-
-// ✅ Middleware
+// Middleware
 app.use(express.json());
 
-// ✅ CSP header (optional)
-app.use((req, res, next) => {
-  res.setHeader(
-    "Content-Security-Policy",
-    "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com; script-src 'self';"
-  );
-  next();
-});
-
-// ✅ Test route
 app.get("/", (req, res) => {
-  res.send("Welcome to the backend API!");
+  res.send("✅ Backend is live!");
 });
 
-// ✅ Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-})
-.then(() => {
-  console.log("✅ Connected to MongoDB");
-
+}).then(() => {
+  console.log("✅ MongoDB connected");
   app.use('/api/website/enquiry', enquiryRoutes);
-
-  // No app.listen() in Vercel!
-  console.log("✅ Connected to MongoDB");
-})
-.catch((err) => {
-  console.error("❌ MongoDB connection error:", err);
+}).catch((err) => {
+  console.log("❌ MongoDB connection error", err);
 });
 
-export default app;
+// ❌ Do NOT do this in Vercel: app.listen(...)
+
+export default app; // ✅ required for Vercel
 
 
